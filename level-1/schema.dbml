@@ -1,0 +1,20 @@
+Project youtube_likes_level_1 {
+  database_type: 'PostgreSQL'
+  Note: 'One active like per demo viewer and video; the count is derived from video_likes.'
+}
+
+Table videos {
+  id uuid [pk]
+  title varchar(200) [not null]
+  created_at timestamptz [not null, default: `now()`]
+}
+
+Table video_likes {
+  video_id uuid [not null, ref: > videos.id]
+  viewer_id uuid [not null, note: 'Browser-generated demo identity; not authenticated']
+  created_at timestamptz [not null, default: `now()`]
+
+  indexes {
+    (video_id, viewer_id) [pk]
+  }
+}

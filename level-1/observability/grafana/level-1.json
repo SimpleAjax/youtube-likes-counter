@@ -1,0 +1,45 @@
+{
+  "uid": "likes-level-1",
+  "title": "Like Counter · Level 1",
+  "schemaVersion": 41,
+  "version": 1,
+  "refresh": "5s",
+  "time": { "from": "now-15m", "to": "now" },
+  "panels": [
+    {
+      "id": 1, "type": "timeseries", "title": "Requests per second", "gridPos": { "x": 0, "y": 0, "w": 12, "h": 8 },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "targets": [{ "expr": "sum by (route, method) (rate(likes_http_requests_total{route=~\"/api/.*\"}[1m]))", "legendFormat": "{{method}} {{route}}", "refId": "A" }]
+    },
+    {
+      "id": 2, "type": "timeseries", "title": "P95 response time", "gridPos": { "x": 12, "y": 0, "w": 12, "h": 8 },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "targets": [{ "expr": "histogram_quantile(0.95, sum by (le, route, method) (rate(likes_http_request_duration_seconds_bucket{route=~\"/api/.*\"}[1m])))", "legendFormat": "{{method}} {{route}}", "refId": "A" }],
+      "fieldConfig": { "defaults": { "unit": "s" } }
+    },
+    {
+      "id": 3, "type": "timeseries", "title": "Errors per second", "gridPos": { "x": 0, "y": 8, "w": 12, "h": 8 },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "targets": [{ "expr": "sum by (route, status) (rate(likes_http_requests_total{status=~\"4..|5..\"}[1m]))", "legendFormat": "{{status}} {{route}}", "refId": "A" }]
+    },
+    {
+      "id": 4, "type": "timeseries", "title": "Database connections", "gridPos": { "x": 12, "y": 8, "w": 12, "h": 8 },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "targets": [
+        { "expr": "likes_db_connections_in_use", "legendFormat": "in use", "refId": "A" },
+        { "expr": "likes_db_connections_open", "legendFormat": "open", "refId": "B" }
+      ]
+    },
+    {
+      "id": 5, "type": "timeseries", "title": "Go heap memory", "gridPos": { "x": 0, "y": 16, "w": 12, "h": 8 },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "targets": [{ "expr": "go_memstats_heap_alloc_bytes", "legendFormat": "heap", "refId": "A" }],
+      "fieldConfig": { "defaults": { "unit": "bytes" } }
+    },
+    {
+      "id": 6, "type": "timeseries", "title": "Database pool waits", "gridPos": { "x": 12, "y": 16, "w": 12, "h": 8 },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "targets": [{ "expr": "rate(likes_db_wait_count_total[1m])", "legendFormat": "waits/sec", "refId": "A" }]
+    }
+  ]
+}
